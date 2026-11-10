@@ -1,0 +1,305 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gestion de mes élèves</title>
+    <link rel="stylesheet" href="style.css">
+    <script src="script.js" defer></script>
+    <link rel="manifest" href="manifest.json">
+    <meta name="theme-color" content="#7655c9">
+    <script>
+         if ("serviceWorker" in navigator) {
+    window.addEventListener("load", () => {
+      navigator.serviceWorker.register("./service-worker.js")
+        .then(() => console.log("Application prête !"))
+        .catch((error) => console.log("Erreur :", error));
+    });
+  }
+    </script>
+</head>
+<body>
+
+<header class="topbar">
+    <div class="brand-mark">✦</div>
+    <div>
+        <h1>Mon espace de cours</h1>
+        <p>Gestion de mes élèves et de mes séances</p>
+    </div>
+</header>
+
+<main>
+
+    <!-- PAGE D'ACCUEIL -->
+    <section id="homePage" class="page">
+        <div class="page-heading">
+            <div>
+                <span class="eyebrow">TABLEAU DE BORD</span>
+                <h2>Mes classes</h2>
+                <p>Choisis une classe pour gérer tes élèves.</p>
+            </div>
+            <button class="primary-btn" onclick="addClass()">
+                + Ajouter une classe
+            </button>
+        </div>
+
+        <div id="classesList" class="classes-grid"></div>
+    </section>
+
+    <!-- PAGE DES ÉLÈVES -->
+    <section id="studentsPage" class="page" hidden>
+
+        <button class="back-link" onclick="goHome()">
+            ← Retour aux classes
+        </button>
+
+        <div class="page-heading">
+            <div>
+                <span class="eyebrow">LISTE DES ÉLÈVES</span>
+                <h2 id="classTitle">Ma classe</h2>
+                <p>Enregistre les présences de tes élèves.</p>
+            </div>
+
+            <button class="primary-btn" onclick="addStudent()">
+                + Ajouter un élève
+            </button>
+        </div>
+
+        <div class="session-toolbar">
+            <label>
+                Date de la séance
+                <input type="date" id="sessionDate">
+            </label>
+
+            <label>
+                Matière
+                <select id="subjectSelect">
+                    <option>Mathématiques</option>
+                    <option>Physique</option>
+                    <option>Arabe</option>
+                    <option>Français</option>
+                    <option>Anglais</option>
+                    <option>Autre</option>
+                </select>
+            </label>
+        </div>
+
+        <div class="legend">
+            <span class="dot green"></span> Groupe
+            <span class="dot purple"></span> Individuel
+            <span class="dot red"></span> Absent
+        </div>
+
+        <div id="studentsList" class="students-list"></div>
+    </section>
+
+    <!-- PROFIL DE L'ÉLÈVE -->
+    <section id="studentPage" class="page" hidden>
+
+        <button class="back-link" onclick="backToStudents()">
+            ← Retour à la liste
+        </button>
+
+        <div class="profile-hero">
+
+            <div class="avatar" id="studentAvatar">👩‍🎓</div>
+
+            <div class="profile-heading">
+                <span class="eyebrow">FICHE ÉLÈVE</span>
+                <h2 id="studentName">Nom de l'élève</h2>
+                <p id="studentClass">Classe</p>
+            </div>
+
+            <button class="secondary-btn" onclick="editStudent()">
+                ✎ Modifier les informations
+            </button>
+        </div>
+
+        <!-- INFORMATIONS -->
+        <div class="profile-grid">
+
+            <article class="info-card">
+                <div class="card-title">
+                    <span class="card-icon">☎</span>
+                    <h3>Coordonnées</h3>
+                </div>
+
+                <p class="muted">Téléphone</p>
+                <p class="info-value" id="studentPhone">
+                    Non renseigné
+                </p>
+
+                <div class="thin-line"></div>
+
+                <p class="muted">Note personnelle</p>
+                <p class="note-text" id="studentNote">
+                    Aucune note pour le moment.
+                </p>
+            </article>
+
+            <!-- SUIVI -->
+            <article class="info-card stat-card">
+                <div class="card-title">
+                    <span class="card-icon">📚</span>
+                    <h3>Suivi des séances</h3>
+                </div>
+
+                <div class="stat-number" id="sessionCount">0</div>
+                <p class="muted">Séances suivies ce mois</p>
+
+                <div class="progress-track">
+                    <div id="sessionProgress" class="progress-fill"></div>
+                </div>
+            </article>
+
+            <!-- PAIEMENT -->
+            <article class="info-card payment-card">
+                <div class="card-title">
+                    <span class="card-icon">💳</span>
+                    <h3>Situation du paiement</h3>
+                </div>
+
+                <div class="amount" id="amountDue">0 DA</div>
+
+                <span id="paymentStatus" class="payment-pill">
+                    Aucun paiement
+                </span>
+
+                <div class="payment-actions">
+                    <button class="success-btn" onclick="markAsPaid()">
+                        Marquer comme payé
+                    </button>
+
+                    <button class="light-btn" onclick="markAsUnpaid()">
+                        Annuler le paiement
+                    </button>
+                </div>
+            </article>
+
+        </div>
+
+        <!-- HISTORIQUE -->
+        <div class="history-panel">
+
+            <div class="history-heading">
+                <div>
+                    <span class="eyebrow">HISTORIQUE</span>
+                    <h3>Les séances de l'élève</h3>
+                </div>
+
+                <label class="month-label">
+                    Mois
+                    <input type="month" id="monthSelect">
+                </label>
+            </div>
+
+            <div id="monthlySummary" class="monthly-summary"></div>
+
+            <div id="monthlyHistory" class="history-list"></div>
+
+        </div>
+
+        <div class="danger-zone">
+            <button class="danger-btn" onclick="deleteStudent()">
+                Supprimer cet élève
+            </button>
+        </div>
+
+    </section>
+
+    <!-- AJOUTER UNE CLASSE -->
+    <section id="addClassPage" class="page" hidden>
+
+        <button class="back-link" onclick="goHome()">
+            ← Retour
+        </button>
+
+        <div class="form-card">
+            <span class="eyebrow">NOUVELLE CLASSE</span>
+
+            <h2>Ajouter une classe</h2>
+
+            <label>
+                Nom de la classe
+                <input
+                    type="text"
+                    id="newClassName"
+                    placeholder="Ex. 3ème année moyenne"
+                >
+            </label>
+
+            <button class="primary-btn" onclick="saveClass()">
+                Enregistrer la classe
+            </button>
+        </div>
+
+    </section>
+
+</main>
+
+<footer>
+    Mon espace de cours · Données enregistrées sur cet appareil.
+</footer>
+
+<!-- FENÊTRE DE MODIFICATION DU PROFIL -->
+<dialog id="studentDialog" class="edit-dialog">
+
+    <form method="dialog" id="studentForm">
+
+        <div class="dialog-heading">
+            <div>
+                <span class="eyebrow">INFORMATIONS</span>
+                <h2>Modifier la fiche élève</h2>
+            </div>
+
+            <button class="close-btn" value="cancel">×</button>
+        </div>
+
+        <label>
+            Nom et prénom
+            <input
+                id="editName"
+                type="text"
+                required
+                placeholder="Nom de l'élève"
+            >
+        </label>
+
+        <label>
+            Numéro de téléphone
+            <input
+                id="editPhone"
+                type="tel"
+                placeholder="Ex. 0550 00 00 00"
+            >
+        </label>
+
+        <label>
+            Note personnelle
+            <textarea
+                id="editNote"
+                rows="4"
+                placeholder="Écris ici tes remarques sur l'élève..."
+            ></textarea>
+        </label>
+
+        <div class="dialog-actions">
+            <button class="light-btn" value="cancel">
+                Annuler
+            </button>
+
+            <button
+                class="primary-btn"
+                id="saveStudentInfo"
+                value="save"
+            >
+                Enregistrer
+            </button>
+        </div>
+
+    </form>
+
+</dialog>
+
+</body>
+</html>

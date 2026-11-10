@@ -1,0 +1,10 @@
+{
+  "name": "Mon Espace de Cours",
+  "short_name": "Mes Cours",
+  "description": "Application de gestion des élèves et des séances",
+  "start_url": "./index.html",
+  "display": "standalone",
+  "background_color": "#f8f5ff",
+  "theme_color": "#7655c9",
+  "orientation": "portrait"
+}
